@@ -27,7 +27,7 @@ public class PluginActivity extends Activity {
 
 	private final boolean DEBUG = false;
 	
-	private final int PID_SPEED = 0x0d;
+	private final int PID_SPEED = 0x0D;
 	private final int[] backgrounds = new int[] { 0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4 };
 
 	private int currentBg;
@@ -99,8 +99,8 @@ public class PluginActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
+		
 		updateTimer.cancel();
 		unbindService(connection);
 	}
@@ -108,17 +108,18 @@ public class PluginActivity extends Activity {
 	/**
 	 * Do an update
 	 */
+	@SuppressWarnings("deprecation")
 	public void update() {
-		int value = 0;
+		long value = 0;
 
 		try {
-			value = (int) torqueService.getValueForPid(PID_SPEED, true);
+			value = (long) torqueService.getValueForPid(PID_SPEED, true);
 		} catch(RemoteException e) {
 			Log.e(getClass().getCanonicalName(), e.getMessage(), e);
 		}
 
 		// Update the widget.
-		final int speed = value;
+		final long speed = value;
 
 		handler.post(new Runnable() {
 			public void run() {
@@ -127,13 +128,13 @@ public class PluginActivity extends Activity {
 					txt_speed_diz.setText("-");
 					txt_speed_unit.setText("-");
 				} else if(speed > 9) {
-					txt_speed_diz.setText(Integer.valueOf(speed / 10)
+					txt_speed_diz.setText(Long.valueOf(speed / 10)
 							.toString());
-					txt_speed_unit.setText(Integer.valueOf(speed % 10)
+					txt_speed_unit.setText(Long.valueOf(speed % 10)
 							.toString());
 				} else {
 					txt_speed_diz.setText("");
-					txt_speed_unit.setText(Integer.valueOf(speed).toString());
+					txt_speed_unit.setText(Long.valueOf(speed).toString());
 				}
 
 			}
@@ -151,7 +152,6 @@ public class PluginActivity extends Activity {
 			try {
 				torqueService.setDebugTestMode(DEBUG);
 			} catch(RemoteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		};
