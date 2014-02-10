@@ -26,10 +26,9 @@ import android.widget.TextView;
 public class PluginActivity extends Activity {
 
 	private final boolean DEBUG = false;
+	private final long PID_SPEED = 0x0D;
 	
-	private final int PID_SPEED = 0x0D;
 	private final int[] backgrounds = new int[] { 0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4 };
-
 	private int currentBg;
 
 	private TextView txt_speed_diz;
@@ -90,9 +89,11 @@ public class PluginActivity extends Activity {
 		if(successfulBind) {
 			updateTimer = new Timer();
 			updateTimer.schedule(new TimerTask() {
+				
 				public void run() {
 					update();
 				}
+				
 			}, 1000, 500);
 		}
 	}
@@ -110,36 +111,29 @@ public class PluginActivity extends Activity {
 	 */
 	@SuppressWarnings("deprecation")
 	public void update() {
-		long value = 0;
-
 		try {
-			value = (long) torqueService.getValueForPid(PID_SPEED, true);
+			final long speed = (long) torqueService.getValueForPid(PID_SPEED, true);
+			
+			// Update the widget.
+			handler.post(new Runnable() {
+				public void run() {
+					if(speed > 99) {
+						txt_speed_diz.setText("-");
+						txt_speed_unit.setText("-");
+					} else if(speed > 9) {
+						txt_speed_diz.setText(Long.valueOf(speed / 10)
+								.toString());
+						txt_speed_unit.setText(Long.valueOf(speed % 10)
+								.toString());
+					} else {
+						txt_speed_diz.setText("");
+						txt_speed_unit.setText(Long.valueOf(speed).toString());
+					}
+				}
+			});
 		} catch(RemoteException e) {
 			Log.e(getClass().getCanonicalName(), e.getMessage(), e);
 		}
-
-		// Update the widget.
-		final long speed = value;
-
-		handler.post(new Runnable() {
-			public void run() {
-				
-				if(speed > 99) {
-					txt_speed_diz.setText("-");
-					txt_speed_unit.setText("-");
-				} else if(speed > 9) {
-					txt_speed_diz.setText(Long.valueOf(speed / 10)
-							.toString());
-					txt_speed_unit.setText(Long.valueOf(speed % 10)
-							.toString());
-				} else {
-					txt_speed_diz.setText("");
-					txt_speed_unit.setText(Long.valueOf(speed).toString());
-				}
-
-			}
-		});
-
 	}
 
 	/**
