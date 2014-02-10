@@ -27,7 +27,7 @@ public class PluginActivity extends Activity {
 
 	private final boolean DEBUG = false;
 	private final long PID_SPEED = 0x0D;
-	
+
 	private final int[] backgrounds = new int[] { 0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4 };
 	private int currentBg;
 
@@ -43,7 +43,7 @@ public class PluginActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_plugin);
-		
+
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		LayoutInflater inflater = LayoutInflater.from(this);
@@ -89,11 +89,11 @@ public class PluginActivity extends Activity {
 		if(successfulBind) {
 			updateTimer = new Timer();
 			updateTimer.schedule(new TimerTask() {
-				
+
 				public void run() {
 					update();
 				}
-				
+
 			}, 1000, 500);
 		}
 	}
@@ -101,7 +101,7 @@ public class PluginActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		
+
 		updateTimer.cancel();
 		unbindService(connection);
 	}
@@ -112,8 +112,9 @@ public class PluginActivity extends Activity {
 	@SuppressWarnings("deprecation")
 	public void update() {
 		try {
-			final long speed = (long) torqueService.getValueForPid(PID_SPEED, true);
-			
+			final long speed = (long) torqueService
+					.getValueForPid(PID_SPEED, true);
+
 			// Update the widget.
 			handler.post(new Runnable() {
 				public void run() {
@@ -142,7 +143,7 @@ public class PluginActivity extends Activity {
 	private ServiceConnection connection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName arg0, IBinder service) {
 			torqueService = ITorqueService.Stub.asInterface(service);
-			
+
 			try {
 				torqueService.setDebugTestMode(DEBUG);
 			} catch(RemoteException e) {
