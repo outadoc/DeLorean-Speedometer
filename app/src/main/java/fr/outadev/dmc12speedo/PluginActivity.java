@@ -1,10 +1,5 @@
 package fr.outadev.dmc12speedo;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
-import org.prowl.torque.remote.ITorqueService;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -23,12 +18,17 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import org.prowl.torque.remote.ITorqueService;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class PluginActivity extends Activity {
 
 	private final boolean DEBUG = false;
 	private final long PID_SPEED = 0x0D;
 
-	private final int[] backgrounds = new int[] { 0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4 };
+	private final int[] backgrounds = new int[]{0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4};
 	private int currentBg;
 
 	private TextView txt_speed_diz;
@@ -37,6 +37,28 @@ public class PluginActivity extends Activity {
 
 	private Timer updateTimer;
 	private ITorqueService torqueService;
+	/**
+	 * Bits of service code. You usually won't need to change this.
+	 */
+	private ServiceConnection connection = new ServiceConnection() {
+		public void onServiceConnected(ComponentName arg0, IBinder service) {
+			torqueService = ITorqueService.Stub.asInterface(service);
+
+			try {
+				torqueService.setDebugTestMode(DEBUG);
+			} catch(RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+
+		;
+
+		public void onServiceDisconnected(ComponentName name) {
+			torqueService = null;
+		}
+
+		;
+	};
 
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	@Override
@@ -136,23 +158,4 @@ public class PluginActivity extends Activity {
 			Log.e(getClass().getCanonicalName(), e.getMessage(), e);
 		}
 	}
-
-	/**
-	 * Bits of service code. You usually won't need to change this.
-	 */
-	private ServiceConnection connection = new ServiceConnection() {
-		public void onServiceConnected(ComponentName arg0, IBinder service) {
-			torqueService = ITorqueService.Stub.asInterface(service);
-
-			try {
-				torqueService.setDebugTestMode(DEBUG);
-			} catch(RemoteException e) {
-				e.printStackTrace();
-			}
-		};
-
-		public void onServiceDisconnected(ComponentName name) {
-			torqueService = null;
-		};
-	};
 }
