@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import org.prowl.torque.remote.ITorqueService;
@@ -30,7 +32,11 @@ public class PluginActivity extends Activity {
 
 	private final long PID_SPEED = 0x0D;
 
-	private final int[] backgrounds = new int[]{-1, 0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4};
+	private final int BG_INDEX_NONE = -1;
+	private final int BG_INDEX_CAMERA = -2;
+
+	private final int[] backgrounds = new int[]{BG_INDEX_NONE, 0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4,
+			BG_INDEX_CAMERA};
 	private boolean lastConnected = false;
 
 	private int currentBg;
@@ -41,6 +47,7 @@ public class PluginActivity extends Activity {
 	private TextView txt_speed_diz;
 	private TextView txt_speed_unit;
 	private View container;
+	private FrameLayout cameraPreview;
 
 	private Handler handler;
 	private Timer updateTimer;
@@ -53,11 +60,26 @@ public class PluginActivity extends Activity {
 
 	private ServiceConnection connection;
 
+	private Camera mCamera;
+	private CameraPreview mPreview;
+
+	/**
+	 * A safe way to get an instance of the Camera object.
+	 */
+	public static Camera getCameraInstance() {
+		Camera c = null;
+		try {
+			c = Camera.open(); // attempt to get a Camera instance
+		} catch(Exception e) {
+			// Camera is not available (in use or does not exist)
+		}
+		return c; // returns null if camera is unavailable
+	}
+
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_plugin);
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -84,6 +106,7 @@ public class PluginActivity extends Activity {
 
 		LayoutInflater inflater = LayoutInflater.from(this);
 		container = inflater.inflate(R.layout.activity_plugin, null);
+		setContentView(container);
 
 		View rootView = getWindow().getDecorView();
 
@@ -107,7 +130,6 @@ public class PluginActivity extends Activity {
 		((TextView) container.findViewById(R.id.txt_dot)).setTypeface(font);
 
 		currentBg = prefs.getInt("currentBg", 0);
-		updateBackground();
 
 		speedo_view.setOnClickListener(new OnClickListener() {
 
@@ -135,7 +157,18 @@ public class PluginActivity extends Activity {
 
 		sfx = new SoundEffects(this);
 		handler = new Handler();
-		setContentView(container);
+
+		// Create an instance of Camera
+		mCamera = getCameraInstance();
+
+		if(mCamera != null) {
+			// Create our Preview view and set it as the content of our activity.
+			mPreview = new CameraPreview(this, mCamera);
+			cameraPreview = (FrameLayout) findViewById(R.id.camera_preview);
+			cameraPreview.addView(mPreview);
+		}
+
+		updateBackground();
 	}
 
 	@Override
@@ -173,8 +206,22 @@ public class PluginActivity extends Activity {
 	private void updateBackground() {
 		int bg = backgrounds[currentBg % backgrounds.length];
 
-		if(bg == -1) {
+		//if there's no camera available
+		if(bg == BG_INDEX_CAMERA && mCamera == null) {
+			currentBg++;
+		}
+
+		//if camera is available but we need to hide it anyway
+		if(bg != BG_INDEX_CAMERA && mCamera != null) {
+			mCamera.stopPreview();
+			cameraPreview.setVisibility(View.GONE);
+		}
+
+		if(bg == BG_INDEX_NONE) {
 			container.setBackgroundColor(getResources().getColor(android.R.color.black));
+		} else if(bg == BG_INDEX_CAMERA) {
+			mCamera.startPreview();
+			cameraPreview.setVisibility(View.VISIBLE);
 		} else {
 			container.setBackgroundResource(bg);
 		}
