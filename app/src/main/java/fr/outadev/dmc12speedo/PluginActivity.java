@@ -183,6 +183,8 @@ public class PluginActivity extends Activity {
 
 			}, 1000, 500);
 		}
+
+		initCamera();
 	}
 
 	@Override
@@ -191,6 +193,8 @@ public class PluginActivity extends Activity {
 
 		updateTimer.cancel();
 		unbindService(connection);
+
+		releaseCamera();
 	}
 
 	private void updateBackground() {
