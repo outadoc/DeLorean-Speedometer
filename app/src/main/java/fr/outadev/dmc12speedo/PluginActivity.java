@@ -84,7 +84,13 @@ public class PluginActivity extends Activity {
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 		View rootView = getWindow().getDecorView();
-		rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+					| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+		} else {
+			rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+		}
 
 		txt_speed_diz = (TextView) container.findViewById(R.id.txt_speed_diz);
 		txt_speed_unit = (TextView) container.findViewById(R.id.txt_speed_unit);
@@ -183,31 +189,37 @@ public class PluginActivity extends Activity {
 	public void update() {
 		try {
 			if(torqueService.isConnectedToECU() || isDebugEnabled()) {
-				final long speed = (long) torqueService
+				long speed = (long) torqueService
 						.getValueForPid(PID_SPEED, true);
+
+				if(useMph) {
+					speed *= 0.621371;
+				}
+
+				final long finalSpeed = speed;
 
 				// Update the widget.
 				handler.post(new Runnable() {
 
 					public void run() {
-						if(speed >= 100.0) {
+						if(finalSpeed >= 100.0) {
 							txt_speed_diz.setText("-");
 							txt_speed_unit.setText("-");
-						} else if(speed >= 10.0) {
-							txt_speed_diz.setText(Long.valueOf(speed / 10)
+						} else if(finalSpeed >= 10.0) {
+							txt_speed_diz.setText(Long.valueOf(finalSpeed / 10)
 									.toString());
-							txt_speed_unit.setText(Long.valueOf(speed % 10)
+							txt_speed_unit.setText(Long.valueOf(finalSpeed % 10)
 									.toString());
 						} else {
 							txt_speed_diz.setText("");
-							txt_speed_unit.setText(Long.valueOf(speed).toString());
+							txt_speed_unit.setText(Long.valueOf(finalSpeed).toString());
 						}
 
 						if((new Date()).getTime() - lastTimeTravelTime >= 10 * 1000) {
-							if(speed >= 88.2 && speed <= 92.0) {
+							if(finalSpeed >= 88.2 && finalSpeed <= 92.0) {
 								sfx.playSound(SoundEffects.TIME_TRAVEL, false);
 								lastTimeTravelTime = (new Date()).getTime();
-							} else if(speed >= 80.0) {
+							} else if(finalSpeed >= 80.0) {
 								sfx.playSound(SoundEffects.PREPARE_TIME_TRAVEL, true);
 							} else if(sfx.getCurrentPlayingSound() == SoundEffects.PREPARE_TIME_TRAVEL) {
 								sfx.stopSound();

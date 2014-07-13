@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-	<CheckBoxPreference
+	<SwitchPreference
 		android:defaultValue="false"
 		android:key="pref_use_mph"
-		android:summary="Use miles per hour as the speed unit."
+		android:summaryOff="Use kilometers per hour (km/h) as the speed unit."
+		android:summaryOn="Use miles per hour (mph) as the speed unit."
 		android:title="Use MPH" />
-	<CheckBoxPreference
+	<SwitchPreference
 		android:defaultValue="true"
 		android:key="pref_enable_sounds"
-		android:summary="Play the DeLorean start/stop and time travel sound effects."
+		android:summaryOff="Do not play the DeLorean start/stop and time travel sound effects."
+		android:summaryOn="Play the DeLorean start/stop and time travel sound effects."
 		android:title="Play Sound Effects" />
 </PreferenceScreen>
