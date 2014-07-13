@@ -36,6 +36,7 @@ public class PluginActivity extends Activity {
 	private int currentBg;
 
 	private boolean useMph = false;
+	private boolean debug = false;
 
 	private TextView txt_speed_diz;
 	private TextView txt_speed_unit;
@@ -60,8 +61,8 @@ public class PluginActivity extends Activity {
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-		LayoutInflater inflater = LayoutInflater.from(this);
-		container = inflater.inflate(R.layout.activity_plugin, null);
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		debug = prefs.getBoolean("pref_debug", false);
 
 		connection = new ServiceConnection() {
 
@@ -69,7 +70,7 @@ public class PluginActivity extends Activity {
 				torqueService = ITorqueService.Stub.asInterface(service);
 
 				try {
-					torqueService.setDebugTestMode(isDebugEnabled());
+					torqueService.setDebugTestMode(debug);
 				} catch(RemoteException e) {
 					e.printStackTrace();
 				}
@@ -81,7 +82,8 @@ public class PluginActivity extends Activity {
 
 		};
 
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		LayoutInflater inflater = LayoutInflater.from(this);
+		container = inflater.inflate(R.layout.activity_plugin, null);
 
 		View rootView = getWindow().getDecorView();
 
@@ -168,10 +170,6 @@ public class PluginActivity extends Activity {
 		unbindService(connection);
 	}
 
-	private boolean isDebugEnabled() {
-		return getResources().getBoolean(R.bool.debug_mode);
-	}
-
 	private void updateBackground() {
 		int bg = backgrounds[currentBg % backgrounds.length];
 
@@ -188,9 +186,8 @@ public class PluginActivity extends Activity {
 	@SuppressWarnings("deprecation")
 	public void update() {
 		try {
-			if(torqueService.isConnectedToECU() || isDebugEnabled()) {
-				long speed = (long) torqueService
-						.getValueForPid(PID_SPEED, true);
+			if(torqueService.isConnectedToECU() || debug) {
+				long speed = (long) torqueService.getValueForPid(PID_SPEED, true);
 
 				if(useMph) {
 					speed *= 0.621371;

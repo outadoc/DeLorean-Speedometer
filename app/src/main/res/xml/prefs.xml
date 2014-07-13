@@ -13,4 +13,8 @@
 		android:summaryOff="@string/pref_sounds_summary_off"
 		android:summaryOn="@string/pref_sounds_summary_on"
 		android:title="@string/pref_sounds_title" />
+	<SwitchPreference
+		android:key="pref_debug"
+		android:summary="@string/pref_restart_summary"
+		android:title="@string/pref_debug_title" />
 </PreferenceScreen>
