@@ -243,10 +243,10 @@ public class PluginActivity extends Activity {
 				handler.post(new Runnable() {
 
 					public void run() {
-						if(finalSpeed >= 100.0) {
+						if(finalSpeed >= 100) {
 							txt_speed_diz.setText("-");
 							txt_speed_unit.setText("-");
-						} else if(finalSpeed >= 10.0) {
+						} else if(finalSpeed >= 10) {
 							txt_speed_diz.setText(Long.valueOf(finalSpeed / 10)
 									.toString());
 							txt_speed_unit.setText(Long.valueOf(finalSpeed % 10)
@@ -257,10 +257,10 @@ public class PluginActivity extends Activity {
 						}
 
 						if((new Date()).getTime() - lastTimeTravelTime >= 10 * 1000) {
-							if(finalSpeed >= 88.2 && finalSpeed <= 92.0) {
+							if(finalSpeed >= 88 && finalSpeed <= 92) {
 								sfx.playSound(SoundEffects.TIME_TRAVEL, false);
 								lastTimeTravelTime = (new Date()).getTime();
-							} else if(finalSpeed >= 80.0) {
+							} else if(finalSpeed >= 80) {
 								sfx.playSound(SoundEffects.PREPARE_TIME_TRAVEL, true);
 							} else if(sfx.getCurrentPlayingSound() == SoundEffects.PREPARE_TIME_TRAVEL) {
 								sfx.stopSound();
