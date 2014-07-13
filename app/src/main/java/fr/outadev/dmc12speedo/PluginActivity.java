@@ -158,16 +158,6 @@ public class PluginActivity extends Activity {
 		sfx = new SoundEffects(this);
 		handler = new Handler();
 
-		// Create an instance of Camera
-		mCamera = getCameraInstance();
-
-		if(mCamera != null) {
-			// Create our Preview view and set it as the content of our activity.
-			mPreview = new CameraPreview(this, mCamera);
-			cameraPreview = (FrameLayout) findViewById(R.id.camera_preview);
-			cameraPreview.addView(mPreview);
-		}
-
 		updateBackground();
 	}
 
@@ -206,21 +196,22 @@ public class PluginActivity extends Activity {
 	private void updateBackground() {
 		int bg = backgrounds[currentBg % backgrounds.length];
 
-		//if there's no camera available
-		if(bg == BG_INDEX_CAMERA && mCamera == null) {
-			currentBg++;
-		}
-
-		//if camera is available but we need to hide it anyway
-		if(bg != BG_INDEX_CAMERA && mCamera != null) {
-			mCamera.stopPreview();
+		if(mCamera != null) {
+			releaseCamera();
 			cameraPreview.setVisibility(View.GONE);
 		}
 
 		if(bg == BG_INDEX_NONE) {
 			container.setBackgroundColor(getResources().getColor(android.R.color.black));
 		} else if(bg == BG_INDEX_CAMERA) {
-			mCamera.startPreview();
+			initCamera();
+
+			if(mCamera == null) {
+				currentBg++;
+				updateBackground();
+				return;
+			}
+
 			cameraPreview.setVisibility(View.VISIBLE);
 		} else {
 			container.setBackgroundResource(bg);
@@ -298,6 +289,29 @@ public class PluginActivity extends Activity {
 			}
 		} catch(RemoteException e) {
 			Log.e(getClass().getCanonicalName(), e.getMessage(), e);
+		}
+	}
+
+	private void initCamera() {
+		// Create an instance of Camera
+		mCamera = getCameraInstance();
+
+		if(mCamera != null) {
+			mPreview = new CameraPreview(this, mCamera);
+			cameraPreview = (FrameLayout) findViewById(R.id.camera_preview);
+			cameraPreview.addView(mPreview);
+
+			mCamera.startPreview();
+		}
+	}
+
+	private void releaseCamera() {
+		if(mCamera != null) {
+			cameraPreview.removeAllViews();
+
+			mCamera.stopPreview();
+			mCamera.release();
+			mCamera = null;
 		}
 	}
 }
