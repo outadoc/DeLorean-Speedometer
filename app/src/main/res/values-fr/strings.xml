@@ -9,7 +9,7 @@
 	<string name="pref_use_mph_summary_off">Utiliser les kilomètres par heure (km/h) comme unité de vitesse.</string>
 	<string name="pref_sounds_title">Activer les effets sonores</string>
 	<string name="pref_sounds_summary_on">Jouer les effets sonores de démarrage/arrêt et de voyage dans le temps de la DeLorean.</string>
-	<string name="pref_sounds_summary_off">Ne pas jouer d'effets sonores.</string>
+	<string name="pref_sounds_summary_off">Ne pas jouer d\'effets sonores.</string>
 	<string name="pref_debug_title">Mode débug</string>
 	<string name="pref_restart_summary">Vous devez relancer Torque pour prendre en compte ce changement.</string>
 
