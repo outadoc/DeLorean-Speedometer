@@ -20,45 +20,30 @@ import android.widget.TextView;
 
 import org.prowl.torque.remote.ITorqueService;
 
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class PluginActivity extends Activity {
 
-	private final boolean DEBUG = false;
+	private final boolean DEBUG = true;
 	private final long PID_SPEED = 0x0D;
-
 	private final int[] backgrounds = new int[]{0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4};
+	private boolean lastConnected = false;
 	private int currentBg;
 
 	private TextView txt_speed_diz;
 	private TextView txt_speed_unit;
+
 	private Handler handler;
-
 	private Timer updateTimer;
+
 	private ITorqueService torqueService;
-	/**
-	 * Bits of service code. You usually won't need to change this.
-	 */
-	private ServiceConnection connection = new ServiceConnection() {
-		public void onServiceConnected(ComponentName arg0, IBinder service) {
-			torqueService = ITorqueService.Stub.asInterface(service);
 
-			try {
-				torqueService.setDebugTestMode(DEBUG);
-			} catch(RemoteException e) {
-				e.printStackTrace();
-			}
-		}
+	private SoundEffects sfx;
+	private long lastTimeTravelTime;
 
-		;
-
-		public void onServiceDisconnected(ComponentName name) {
-			torqueService = null;
-		}
-
-		;
-	};
+	private ServiceConnection connection;
 
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	@Override
@@ -70,6 +55,24 @@ public class PluginActivity extends Activity {
 
 		LayoutInflater inflater = LayoutInflater.from(this);
 		final View view = inflater.inflate(R.layout.activity_plugin, null);
+
+		connection = new ServiceConnection() {
+
+			public void onServiceConnected(ComponentName arg0, IBinder service) {
+				torqueService = ITorqueService.Stub.asInterface(service);
+
+				try {
+					torqueService.setDebugTestMode(DEBUG);
+				} catch(RemoteException e) {
+					e.printStackTrace();
+				}
+			}
+
+			public void onServiceDisconnected(ComponentName name) {
+				torqueService = null;
+			}
+
+		};
 
 		View rootView = getWindow().getDecorView();
 		rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
@@ -95,6 +98,7 @@ public class PluginActivity extends Activity {
 
 		});
 
+		sfx = new SoundEffects(this);
 		handler = new Handler();
 		setContentView(view);
 	}
@@ -134,26 +138,55 @@ public class PluginActivity extends Activity {
 	@SuppressWarnings("deprecation")
 	public void update() {
 		try {
-			final long speed = (long) torqueService
-					.getValueForPid(PID_SPEED, true);
+			if(torqueService.isConnectedToECU() || DEBUG) {
+				final long speed = (long) torqueService
+						.getValueForPid(PID_SPEED, true);
 
-			// Update the widget.
-			handler.post(new Runnable() {
-				public void run() {
-					if(speed > 99) {
-						txt_speed_diz.setText("-");
-						txt_speed_unit.setText("-");
-					} else if(speed > 9) {
-						txt_speed_diz.setText(Long.valueOf(speed / 10)
-								.toString());
-						txt_speed_unit.setText(Long.valueOf(speed % 10)
-								.toString());
-					} else {
-						txt_speed_diz.setText("");
-						txt_speed_unit.setText(Long.valueOf(speed).toString());
+				// Update the widget.
+				handler.post(new Runnable() {
+
+					public void run() {
+						if(speed > 99) {
+							txt_speed_diz.setText("-");
+							txt_speed_unit.setText("-");
+						} else if(speed > 9) {
+							txt_speed_diz.setText(Long.valueOf(speed / 10)
+									.toString());
+							txt_speed_unit.setText(Long.valueOf(speed % 10)
+									.toString());
+						} else {
+							txt_speed_diz.setText("");
+							txt_speed_unit.setText(Long.valueOf(speed).toString());
+						}
+
+						if((new Date()).getTime() - lastTimeTravelTime >= 10 * 1000) {
+							if(speed >= 88 && speed <= 92) {
+								sfx.playSound(SoundEffects.TIME_TRAVEL, true);
+								lastTimeTravelTime = (new Date()).getTime();
+							} else if(speed >= 80) {
+								sfx.playSound(SoundEffects.PREPARE_TIME_TRAVEL, true);
+							} else if(sfx.getCurrentPlayingSound() == SoundEffects.PREPARE_TIME_TRAVEL) {
+								sfx.stopSound();
+							}
+						}
 					}
+
+				});
+
+				if(!lastConnected) {
+					// play startup sound
+					sfx.playSound(SoundEffects.STARTUP, false);
 				}
-			});
+
+				lastConnected = true;
+			} else {
+				if(lastConnected) {
+					//play shutdown sound
+					sfx.playSound(SoundEffects.SHUTDOWN, false);
+				}
+
+				lastConnected = false;
+			}
 		} catch(RemoteException e) {
 			Log.e(getClass().getCanonicalName(), e.getMessage(), e);
 		}
