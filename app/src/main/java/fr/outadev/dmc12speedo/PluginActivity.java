@@ -84,6 +84,8 @@ public class PluginActivity extends Activity {
 		txt_speed_diz = (TextView) container.findViewById(R.id.txt_speed_diz);
 		txt_speed_unit = (TextView) container.findViewById(R.id.txt_speed_unit);
 
+		View speedo_view = container.findViewById(R.id.speedo_view);
+
 		Typeface font = Typeface
 				.createFromAsset(getAssets(), "digital-7_mono_italic.ttf");
 
@@ -93,6 +95,16 @@ public class PluginActivity extends Activity {
 
 		currentBg = prefs.getInt("currentBg", 0);
 		updateBackground();
+
+		speedo_view.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(PluginActivity.this, SettingsActivity.class);
+				startActivity(intent);
+			}
+
+		});
 
 		container.setOnClickListener(new OnClickListener() {
 
@@ -208,6 +220,15 @@ public class PluginActivity extends Activity {
 					//play shutdown sound
 					sfx.playSound(SoundEffects.SHUTDOWN, false);
 				}
+
+				handler.post(new Runnable() {
+
+					public void run() {
+						txt_speed_diz.setText("");
+						txt_speed_unit.setText("");
+					}
+
+				});
 
 				lastConnected = false;
 			}
