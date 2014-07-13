@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,12 +28,14 @@ import java.util.TimerTask;
 public class PluginActivity extends Activity {
 
 	private final long PID_SPEED = 0x0D;
+
 	private final int[] backgrounds = new int[]{-1, 0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4};
 	private boolean lastConnected = false;
 	private int currentBg;
 
 	private TextView txt_speed_diz;
 	private TextView txt_speed_unit;
+	private View container;
 
 	private Handler handler;
 	private Timer updateTimer;
@@ -53,7 +56,7 @@ public class PluginActivity extends Activity {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		LayoutInflater inflater = LayoutInflater.from(this);
-		final View view = inflater.inflate(R.layout.activity_plugin, null);
+		container = inflater.inflate(R.layout.activity_plugin, null);
 
 		connection = new ServiceConnection() {
 
@@ -73,39 +76,41 @@ public class PluginActivity extends Activity {
 
 		};
 
+		final SharedPreferences prefs = getSharedPreferences("fr.outadev.dmc12speedometer", MODE_PRIVATE);
+
 		View rootView = getWindow().getDecorView();
 		rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
 
-		txt_speed_diz = (TextView) view.findViewById(R.id.txt_speed_diz);
-		txt_speed_unit = (TextView) view.findViewById(R.id.txt_speed_unit);
+		txt_speed_diz = (TextView) container.findViewById(R.id.txt_speed_diz);
+		txt_speed_unit = (TextView) container.findViewById(R.id.txt_speed_unit);
 
 		Typeface font = Typeface
 				.createFromAsset(getAssets(), "digital-7_mono_italic.ttf");
 
 		txt_speed_diz.setTypeface(font);
 		txt_speed_unit.setTypeface(font);
-		((TextView) view.findViewById(R.id.txt_dot)).setTypeface(font);
+		((TextView) container.findViewById(R.id.txt_dot)).setTypeface(font);
 
-		currentBg = 0;
+		currentBg = prefs.getInt("currentBg", 0);
+		updateBackground();
 
-		view.setOnClickListener(new OnClickListener() {
+		container.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				int bg = backgrounds[++currentBg % backgrounds.length];
+				currentBg++;
+				updateBackground();
 
-				if(bg == -1) {
-					view.setBackgroundColor(getResources().getColor(android.R.color.black));
-				} else {
-					view.setBackgroundResource(bg);
-				}
+				SharedPreferences.Editor edit = prefs.edit();
+				edit.putInt("currentBg", currentBg);
+				edit.apply();
 			}
 
 		});
 
 		sfx = new SoundEffects(this);
 		handler = new Handler();
-		setContentView(view);
+		setContentView(container);
 	}
 
 	@Override
@@ -139,6 +144,16 @@ public class PluginActivity extends Activity {
 
 	private boolean isDebugEnabled() {
 		return getResources().getBoolean(R.bool.debug_mode);
+	}
+
+	private void updateBackground() {
+		int bg = backgrounds[currentBg % backgrounds.length];
+
+		if(bg == -1) {
+			container.setBackgroundColor(getResources().getColor(android.R.color.black));
+		} else {
+			container.setBackgroundResource(bg);
+		}
 	}
 
 	/**
