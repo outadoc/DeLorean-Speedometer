@@ -26,9 +26,8 @@ import java.util.TimerTask;
 
 public class PluginActivity extends Activity {
 
-	private final boolean DEBUG = true;
 	private final long PID_SPEED = 0x0D;
-	private final int[] backgrounds = new int[]{0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4};
+	private final int[] backgrounds = new int[]{-1, 0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4};
 	private boolean lastConnected = false;
 	private int currentBg;
 
@@ -62,7 +61,7 @@ public class PluginActivity extends Activity {
 				torqueService = ITorqueService.Stub.asInterface(service);
 
 				try {
-					torqueService.setDebugTestMode(DEBUG);
+					torqueService.setDebugTestMode(isDebugEnabled());
 				} catch(RemoteException e) {
 					e.printStackTrace();
 				}
@@ -93,7 +92,13 @@ public class PluginActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				view.setBackgroundResource(backgrounds[++currentBg % backgrounds.length]);
+				int bg = backgrounds[++currentBg % backgrounds.length];
+
+				if(bg == -1) {
+					view.setBackgroundColor(getResources().getColor(android.R.color.black));
+				} else {
+					view.setBackgroundResource(bg);
+				}
 			}
 
 		});
@@ -132,13 +137,17 @@ public class PluginActivity extends Activity {
 		unbindService(connection);
 	}
 
+	private boolean isDebugEnabled() {
+		return getResources().getBoolean(R.bool.debug_mode);
+	}
+
 	/**
 	 * Do an update
 	 */
 	@SuppressWarnings("deprecation")
 	public void update() {
 		try {
-			if(torqueService.isConnectedToECU() || DEBUG) {
+			if(torqueService.isConnectedToECU() || isDebugEnabled()) {
 				final long speed = (long) torqueService
 						.getValueForPid(PID_SPEED, true);
 
@@ -146,10 +155,10 @@ public class PluginActivity extends Activity {
 				handler.post(new Runnable() {
 
 					public void run() {
-						if(speed > 99) {
+						if(speed >= 100.0) {
 							txt_speed_diz.setText("-");
 							txt_speed_unit.setText("-");
-						} else if(speed > 9) {
+						} else if(speed >= 10.0) {
 							txt_speed_diz.setText(Long.valueOf(speed / 10)
 									.toString());
 							txt_speed_unit.setText(Long.valueOf(speed % 10)
@@ -160,10 +169,10 @@ public class PluginActivity extends Activity {
 						}
 
 						if((new Date()).getTime() - lastTimeTravelTime >= 10 * 1000) {
-							if(speed >= 88 && speed <= 92) {
-								sfx.playSound(SoundEffects.TIME_TRAVEL, true);
+							if(speed >= 88.2 && speed <= 92.0) {
+								sfx.playSound(SoundEffects.TIME_TRAVEL, false);
 								lastTimeTravelTime = (new Date()).getTime();
-							} else if(speed >= 80) {
+							} else if(speed >= 80.0) {
 								sfx.playSound(SoundEffects.PREPARE_TIME_TRAVEL, true);
 							} else if(sfx.getCurrentPlayingSound() == SoundEffects.PREPARE_TIME_TRAVEL) {
 								sfx.stopSound();
