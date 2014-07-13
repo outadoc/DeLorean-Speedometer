@@ -4,13 +4,13 @@
 	<SwitchPreference
 		android:defaultValue="false"
 		android:key="pref_use_mph"
-		android:summaryOff="Use kilometers per hour (km/h) as the speed unit."
-		android:summaryOn="Use miles per hour (mph) as the speed unit."
-		android:title="Use MPH" />
+		android:summaryOff="@string/pref_use_mph_summary_off"
+		android:summaryOn="@string/pref_use_mph_summary_on"
+		android:title="@string/pref_use_mph_title" />
 	<SwitchPreference
 		android:defaultValue="true"
 		android:key="pref_enable_sounds"
-		android:summaryOff="Do not play the DeLorean start/stop and time travel sound effects."
-		android:summaryOn="Play the DeLorean start/stop and time travel sound effects."
-		android:title="Play Sound Effects" />
+		android:summaryOff="@string/pref_sounds_summary_off"
+		android:summaryOn="@string/pref_sounds_summary_on"
+		android:title="@string/pref_sounds_title" />
 </PreferenceScreen>
