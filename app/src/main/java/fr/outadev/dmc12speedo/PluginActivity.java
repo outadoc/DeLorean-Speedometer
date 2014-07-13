@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +32,10 @@ public class PluginActivity extends Activity {
 
 	private final int[] backgrounds = new int[]{-1, 0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4};
 	private boolean lastConnected = false;
+
 	private int currentBg;
+
+	private boolean useMph = false;
 
 	private TextView txt_speed_diz;
 	private TextView txt_speed_unit;
@@ -41,6 +45,7 @@ public class PluginActivity extends Activity {
 	private Timer updateTimer;
 
 	private ITorqueService torqueService;
+	private SharedPreferences prefs;
 
 	private SoundEffects sfx;
 	private long lastTimeTravelTime;
@@ -76,7 +81,7 @@ public class PluginActivity extends Activity {
 
 		};
 
-		final SharedPreferences prefs = getSharedPreferences("fr.outadev.dmc12speedometer", MODE_PRIVATE);
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 		View rootView = getWindow().getDecorView();
 		rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
@@ -128,6 +133,9 @@ public class PluginActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+		useMph = prefs.getBoolean("pref_use_mph", false);
+		sfx.setEnabled(prefs.getBoolean("pref_enable_sounds", true));
 
 		// Bind to the torque service
 		Intent intent = new Intent();

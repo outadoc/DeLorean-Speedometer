@@ -13,25 +13,32 @@ public class SoundEffects {
 	public static final int SHUTDOWN = R.raw.engine_off;
 	public static final int PREPARE_TIME_TRAVEL = R.raw.prepare_time_travel;
 	public static final int TIME_TRAVEL = R.raw.time_travel;
+
 	private Context context;
+	private boolean enabled;
+
 	private int currentSound;
 	private MediaPlayer mediaPlayer;
 
 	public SoundEffects(Context context) {
 		this.context = context;
+		this.enabled = true;
+
 		currentSound = -1;
 	}
 
 	public void playSound(int sound, boolean loop) {
-		if(sound != getCurrentPlayingSound()) {
-			stopSound();
+		if(enabled) {
+			if(sound != getCurrentPlayingSound()) {
+				stopSound();
 
-			mediaPlayer = MediaPlayer.create(context, sound);
-			mediaPlayer.setLooping(loop);
-			mediaPlayer.start();
+				mediaPlayer = MediaPlayer.create(context, sound);
+				mediaPlayer.setLooping(loop);
+				mediaPlayer.start();
+			}
+
+			currentSound = sound;
 		}
-
-		currentSound = sound;
 	}
 
 	public void stopSound() {
@@ -42,6 +49,10 @@ public class SoundEffects {
 
 	public int getCurrentPlayingSound() {
 		return currentSound;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 }
