@@ -63,17 +63,17 @@ public class PluginActivity extends Activity {
 	private Camera mCamera;
 	private CameraPreview mPreview;
 
-	/**
-	 * A safe way to get an instance of the Camera object.
-	 */
+
 	public static Camera getCameraInstance() {
 		Camera c = null;
+
 		try {
-			c = Camera.open(); // attempt to get a Camera instance
+			c = Camera.open();
 		} catch(Exception e) {
-			// Camera is not available (in use or does not exist)
+
 		}
-		return c; // returns null if camera is unavailable
+
+		return c;
 	}
 
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -184,7 +184,9 @@ public class PluginActivity extends Activity {
 			}, 1000, 500);
 		}
 
-		initCamera();
+		if(getCurrentBackgroundResource() == BG_INDEX_CAMERA) {
+			initCamera();
+		}
 	}
 
 	@Override
@@ -198,7 +200,7 @@ public class PluginActivity extends Activity {
 	}
 
 	private void updateBackground() {
-		int bg = backgrounds[currentBg % backgrounds.length];
+		int bg = getCurrentBackgroundResource();
 
 		if(mCamera != null) {
 			releaseCamera();
@@ -317,5 +319,9 @@ public class PluginActivity extends Activity {
 			mCamera.release();
 			mCamera = null;
 		}
+	}
+
+	private int getCurrentBackgroundResource() {
+		return backgrounds[currentBg % backgrounds.length];
 	}
 }
