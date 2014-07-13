@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<string name="app_name">DMC12 Speedometer</string>
+	<string name="app_name">DeLorean Speedometer</string>
 	<string name="pref_title">Speedometer Settings</string>
 
 	<string name="pref_use_mph_title">Use MPH</string>
@@ -9,7 +9,7 @@
 	<string name="pref_use_mph_summary_off">Use kilometers per hour (km/h) as the speed unit.</string>
 	<string name="pref_sounds_title">Enable sound effects</string>
 	<string name="pref_sounds_summary_on">Play the DeLorean start/stop and time travel sound effects.</string>
-	<string name="pref_sounds_summary_off">Do not play the DeLorean start/stop and time travel sound effects.</string>
+	<string name="pref_sounds_summary_off">Do not play sound effects.</string>
 	<string name="pref_debug_title">Debug mode</string>
 	<string name="pref_restart_summary">You need to restart Torque for this to take effect.</string>
 
