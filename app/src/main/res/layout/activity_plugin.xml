@@ -18,7 +18,7 @@
 		android:layout_width="450dp"
 		android:layout_height="150dp"
 		android:layout_gravity="bottom|center"
-		android:layout_marginBottom="10dp"
+		android:layout_marginBottom="5dp"
 		android:background="@drawable/speedo"
 		android:orientation="horizontal">
 
