@@ -15,7 +15,7 @@ public class SoundEffects {
 	public static final int PREPARE_TIME_TRAVEL = R.raw.prepare_time_travel;
 	public static final int TIME_TRAVEL = R.raw.time_travel;
 
-	private Context context;
+	private final Context context;
 	private boolean enabled;
 
 	private int currentSound;

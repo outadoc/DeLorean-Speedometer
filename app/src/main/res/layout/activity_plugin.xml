@@ -4,14 +4,12 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@android:color/black"
 	tools:context=".PluginActivity">
 
 	<FrameLayout
 		android:id="@+id/camera_preview"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:layout_weight="1" />
+		android:layout_height="fill_parent" />
 
 	<RelativeLayout
 		android:id="@+id/speedo_view"

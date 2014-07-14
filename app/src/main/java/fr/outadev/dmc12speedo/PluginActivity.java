@@ -16,7 +16,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -55,8 +54,8 @@ public class PluginActivity extends Activity {
 
 	private TextView txt_speed_diz;
 	private TextView txt_speed_unit;
-	private View container;
 	private FrameLayout cameraPreview;
+	private View backgroundView;
 
 	private Handler handler;
 	private Timer updateSpeedTimer;
@@ -77,7 +76,7 @@ public class PluginActivity extends Activity {
 		try {
 			c = Camera.open();
 		} catch(Exception e) {
-
+			//silently ignore and return null if couldn't open camera
 		}
 
 		return c;
@@ -105,9 +104,7 @@ public class PluginActivity extends Activity {
 
 		};
 
-		LayoutInflater inflater = LayoutInflater.from(this);
-		container = inflater.inflate(R.layout.activity_plugin, null);
-		setContentView(container);
+		setContentView(R.layout.activity_plugin);
 
 		View rootView = getWindow().getDecorView();
 
@@ -118,17 +115,19 @@ public class PluginActivity extends Activity {
 			rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 		}
 
-		txt_speed_diz = (TextView) container.findViewById(R.id.txt_speed_diz);
-		txt_speed_unit = (TextView) container.findViewById(R.id.txt_speed_unit);
+		txt_speed_diz = (TextView) findViewById(R.id.txt_speed_diz);
+		txt_speed_unit = (TextView) findViewById(R.id.txt_speed_unit);
 
-		View speedo_view = container.findViewById(R.id.speedo_view);
+		View speedo_view = findViewById(R.id.speedo_view);
 
 		Typeface font = Typeface
 				.createFromAsset(getAssets(), "digital-7_mono_italic.ttf");
 
 		txt_speed_diz.setTypeface(font);
 		txt_speed_unit.setTypeface(font);
-		((TextView) container.findViewById(R.id.txt_dot)).setTypeface(font);
+		((TextView) findViewById(R.id.txt_dot)).setTypeface(font);
+
+		backgroundView = findViewById(R.id.background_view);
 
 		currentBg = prefs.getInt("currentBg", 0);
 
@@ -142,7 +141,7 @@ public class PluginActivity extends Activity {
 
 		});
 
-		container.setOnClickListener(new OnClickListener() {
+		backgroundView.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -213,7 +212,7 @@ public class PluginActivity extends Activity {
 		}
 
 		if(bg == BG_INDEX_NONE) {
-			container.setBackgroundColor(getResources().getColor(android.R.color.black));
+			backgroundView.setBackgroundColor(getResources().getColor(android.R.color.black));
 		} else if(bg == BG_INDEX_CAMERA) {
 			initCamera();
 
@@ -225,7 +224,7 @@ public class PluginActivity extends Activity {
 
 			cameraPreview.setVisibility(View.VISIBLE);
 		} else {
-			container.setBackgroundResource(bg);
+			backgroundView.setBackgroundResource(bg);
 		}
 	}
 
