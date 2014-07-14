@@ -8,6 +8,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.hardware.Camera;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,13 +47,17 @@ public class PluginActivity extends Activity {
 	private boolean useMph = false;
 	private boolean debug = false;
 
+	private double acceleration;
+	private double lastSpeed;
+	private double currentSpeed;
+
 	private TextView txt_speed_diz;
 	private TextView txt_speed_unit;
 	private View container;
 	private FrameLayout cameraPreview;
 
 	private Handler handler;
-	private Timer updateTimer;
+	private Timer updateSpeedTimer;
 
 	private ITorqueService torqueService;
 	private SharedPreferences prefs;
@@ -63,7 +68,6 @@ public class PluginActivity extends Activity {
 	private ServiceConnection connection;
 
 	private Camera mCamera;
-
 
 	public static Camera getCameraInstance() {
 		Camera c = null;
@@ -169,14 +173,14 @@ public class PluginActivity extends Activity {
 		boolean successfulBind = bindService(intent, connection, 0);
 
 		if(successfulBind) {
-			updateTimer = new Timer();
-			updateTimer.schedule(new TimerTask() {
+			updateSpeedTimer = new Timer();
+			updateSpeedTimer.schedule(new TimerTask() {
 
 				public void run() {
-					update();
+					updateSpeed();
 				}
 
-			}, 1000, OBD_REFRESH_INTERVAL);
+			}, 500, OBD_REFRESH_INTERVAL);
 		}
 
 		if(getCurrentBackgroundResource() == BG_INDEX_CAMERA) {
@@ -188,7 +192,7 @@ public class PluginActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 
-		updateTimer.cancel();
+		updateSpeedTimer.cancel();
 		unbindService(connection);
 
 		releaseCamera();
@@ -219,58 +223,26 @@ public class PluginActivity extends Activity {
 		}
 	}
 
-	/**
-	 * Do an update
-	 */
 	@SuppressWarnings("deprecation")
-	public void update() {
+	public void updateSpeed() {
 		try {
 			if(torqueService.isConnectedToECU() || debug) {
-				long speed = 0;
+				double speed;
+
+				lastSpeed = currentSpeed;
 
 				if(debug) {
 					speed = getDebugCurrentSpeed();
 					Log.d("DMC12", speed + " km/h");
 				} else {
-					speed = (long) torqueService.getValueForPid(PID_SPEED, true);
+					speed = (double) torqueService.getValueForPid(PID_SPEED, true);
 				}
 
 				if(useMph) {
 					speed *= 0.621371;
 				}
 
-				final long finalSpeed = speed;
-
-				// Update the widget.
-				handler.post(new Runnable() {
-
-					public void run() {
-						if(finalSpeed >= 100) {
-							txt_speed_diz.setText("-");
-							txt_speed_unit.setText("-");
-						} else if(finalSpeed >= 10) {
-							txt_speed_diz.setText(Long.valueOf(finalSpeed / 10)
-									.toString());
-							txt_speed_unit.setText(Long.valueOf(finalSpeed % 10)
-									.toString());
-						} else {
-							txt_speed_diz.setText("");
-							txt_speed_unit.setText(Long.valueOf(finalSpeed).toString());
-						}
-
-						if((new Date()).getTime() - lastTimeTravelTime >= 10 * 1000) {
-							if(finalSpeed >= 88 && finalSpeed < 92) {
-								sfx.playSound(SoundEffects.TIME_TRAVEL, false);
-								lastTimeTravelTime = (new Date()).getTime();
-							} else if(finalSpeed >= 80 && finalSpeed < 88) {
-								sfx.playSound(SoundEffects.PREPARE_TIME_TRAVEL, true);
-							} else if(sfx.getCurrentPlayingSound() == SoundEffects.PREPARE_TIME_TRAVEL) {
-								sfx.stopSound();
-							}
-						}
-					}
-
-				});
+				incrementSpeedUpTo(speed);
 
 				if(!lastConnected) {
 					// play startup sound
@@ -298,6 +270,81 @@ public class PluginActivity extends Activity {
 		} catch(RemoteException e) {
 			Log.e(getClass().getCanonicalName(), e.getMessage(), e);
 		}
+	}
+
+	private void incrementSpeedUpTo(final double targetSpeed) {
+		(new AsyncTask<Void, Void, Void>() {
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				while((long) currentSpeed != (long) targetSpeed) {
+
+					try {
+						if(currentSpeed < targetSpeed) {
+							currentSpeed += 1.0;
+						} else {
+							currentSpeed -= 1.0;
+						}
+
+						PluginActivity.this.runOnUiThread(new Runnable() {
+
+							@Override
+							public void run() {
+								updateSpeedometer();
+								System.out.println(currentSpeed);
+							}
+
+						});
+
+						long remainingUnits = Math.abs((long) targetSpeed - (long) lastSpeed);
+
+						if(remainingUnits == 0 || remainingUnits > 10) {
+							throw new InterruptedException();
+						}
+
+						Thread.sleep(OBD_REFRESH_INTERVAL / remainingUnits);
+					} catch(InterruptedException e) {
+						currentSpeed = targetSpeed;
+					}
+				}
+
+				return null;
+			}
+
+		}).execute();
+	}
+
+	private void updateSpeedometer() {
+		// Update the widget.
+		handler.post(new Runnable() {
+
+			public void run() {
+				if(currentSpeed >= 100.0) {
+					txt_speed_diz.setText("-");
+					txt_speed_unit.setText("-");
+				} else if(currentSpeed >= 10.0) {
+					txt_speed_diz.setText(Long.valueOf((long) currentSpeed / 10)
+							.toString());
+					txt_speed_unit.setText(Long.valueOf((long) currentSpeed % 10)
+							.toString());
+				} else {
+					txt_speed_diz.setText("");
+					txt_speed_unit.setText(Long.valueOf((long) currentSpeed).toString());
+				}
+
+				if((new Date()).getTime() - lastTimeTravelTime >= 10 * 1000) {
+					if(currentSpeed >= 88.0 && currentSpeed < 92.0) {
+						sfx.playSound(SoundEffects.TIME_TRAVEL, false);
+						lastTimeTravelTime = (new Date()).getTime();
+					} else if(currentSpeed >= 80.0 && currentSpeed < 88.0) {
+						sfx.playSound(SoundEffects.PREPARE_TIME_TRAVEL, true);
+					} else if(sfx.getCurrentPlayingSound() == SoundEffects.PREPARE_TIME_TRAVEL) {
+						sfx.stopSound();
+					}
+				}
+			}
+
+		});
 	}
 
 	private void initCamera() {
