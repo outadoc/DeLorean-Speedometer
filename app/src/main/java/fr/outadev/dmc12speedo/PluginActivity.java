@@ -32,6 +32,8 @@ public class PluginActivity extends Activity {
 
 	private final long PID_SPEED = 0x0D;
 
+	private final int OBD_REFRESH_INTERVAL = 500;
+
 	private final int BG_INDEX_NONE = -1;
 	private final int BG_INDEX_CAMERA = -2;
 
@@ -61,7 +63,6 @@ public class PluginActivity extends Activity {
 	private ServiceConnection connection;
 
 	private Camera mCamera;
-	private CameraPreview mPreview;
 
 
 	public static Camera getCameraInstance() {
@@ -181,7 +182,7 @@ public class PluginActivity extends Activity {
 					update();
 				}
 
-			}, 1000, 500);
+			}, 1000, OBD_REFRESH_INTERVAL);
 		}
 
 		if(getCurrentBackgroundResource() == BG_INDEX_CAMERA) {
@@ -303,9 +304,9 @@ public class PluginActivity extends Activity {
 		mCamera = getCameraInstance();
 
 		if(mCamera != null) {
-			mPreview = new CameraPreview(this, mCamera);
+			CameraPreview preview = new CameraPreview(this, mCamera);
 			cameraPreview = (FrameLayout) findViewById(R.id.camera_preview);
-			cameraPreview.addView(mPreview);
+			cameraPreview.addView(preview);
 
 			mCamera.startPreview();
 		}
