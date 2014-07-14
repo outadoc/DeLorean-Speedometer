@@ -169,8 +169,8 @@ public class PluginActivity extends Activity {
 		debug = prefs.getBoolean("pref_debug", false);
 		sfx.setEnabled(prefs.getBoolean("pref_enable_sounds", true));
 
-		txt_speed_diz.setText("-");
-		txt_speed_unit.setText("-");
+		txt_speed_diz.setText("");
+		txt_speed_unit.setText("");
 
 		// Bind to the torque service
 		Intent intent = new Intent();
