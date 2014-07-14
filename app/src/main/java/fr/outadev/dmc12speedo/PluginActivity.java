@@ -90,7 +90,6 @@ public class PluginActivity extends Activity {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		debug = prefs.getBoolean("pref_debug", false);
 
 		connection = new ServiceConnection() {
 
@@ -167,6 +166,7 @@ public class PluginActivity extends Activity {
 
 		useMph = prefs.getBoolean("pref_use_mph", false);
 		incSpeed = prefs.getBoolean("pref_speed_increment", true);
+		debug = prefs.getBoolean("pref_debug", false);
 		sfx.setEnabled(prefs.getBoolean("pref_enable_sounds", true));
 
 		txt_speed_diz.setText("-");
