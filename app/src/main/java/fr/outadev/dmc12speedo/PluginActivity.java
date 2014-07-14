@@ -91,12 +91,6 @@ public class PluginActivity extends Activity {
 
 			public void onServiceConnected(ComponentName arg0, IBinder service) {
 				torqueService = ITorqueService.Stub.asInterface(service);
-
-				try {
-					torqueService.setDebugTestMode(debug);
-				} catch(RemoteException e) {
-					e.printStackTrace();
-				}
 			}
 
 			public void onServiceDisconnected(ComponentName name) {
@@ -232,7 +226,14 @@ public class PluginActivity extends Activity {
 	public void update() {
 		try {
 			if(torqueService.isConnectedToECU() || debug) {
-				long speed = (long) torqueService.getValueForPid(PID_SPEED, true);
+				long speed = 0;
+
+				if(debug) {
+					speed = getDebugCurrentSpeed();
+					Log.d("DMC12", speed + " km/h");
+				} else {
+					speed = (long) torqueService.getValueForPid(PID_SPEED, true);
+				}
 
 				if(useMph) {
 					speed *= 0.621371;
@@ -258,10 +259,10 @@ public class PluginActivity extends Activity {
 						}
 
 						if((new Date()).getTime() - lastTimeTravelTime >= 10 * 1000) {
-							if(finalSpeed >= 88 && finalSpeed <= 92) {
+							if(finalSpeed >= 88 && finalSpeed < 92) {
 								sfx.playSound(SoundEffects.TIME_TRAVEL, false);
 								lastTimeTravelTime = (new Date()).getTime();
-							} else if(finalSpeed >= 80) {
+							} else if(finalSpeed >= 80 && finalSpeed < 88) {
 								sfx.playSound(SoundEffects.PREPARE_TIME_TRAVEL, true);
 							} else if(sfx.getCurrentPlayingSound() == SoundEffects.PREPARE_TIME_TRAVEL) {
 								sfx.stopSound();
@@ -324,5 +325,9 @@ public class PluginActivity extends Activity {
 
 	private int getCurrentBackgroundResource() {
 		return backgrounds[currentBg % backgrounds.length];
+	}
+
+	private long getDebugCurrentSpeed() {
+		return 5 * (((new Date()).getTime() / 1000) % 60);
 	}
 }
