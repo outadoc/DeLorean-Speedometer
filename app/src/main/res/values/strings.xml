@@ -11,7 +11,7 @@
 	<string name="pref_sounds_summary_on">Play the DeLorean start/stop and time travel sound effects.</string>
 	<string name="pref_sounds_summary_off">Do not play sound effects.</string>
 	<string name="pref_debug_title">Debug mode</string>
-	<string name="pref_restart_summary">Displays a fake speed. Useful for testing.</string>
+	<string name="pref_debug_summary">Displays a fake speed. Useful for testing.</string>
 	<string name="pref_speed_increment_title">Speed incrementation</string>
 	<string name="pref_speed_increment_summary_on">Increments the speedometer just like in the movie, unit by unit. Causes a slight lag in the display.</string>
 	<string name="pref_speed_increment_summary_off">Increments the speedometer at every update. More accurate, but a bit less fancy.</string>

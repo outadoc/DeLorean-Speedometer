@@ -21,6 +21,6 @@
 	<SwitchPreference
 		android:defaultValue="true"
 		android:key="pref_debug"
-		android:summary="@string/pref_restart_summary"
+		android:summary="@string/pref_debug_summary"
 		android:title="@string/pref_debug_title" />
 </PreferenceScreen>
