@@ -2,6 +2,7 @@ package fr.outadev.dmc12speedo;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.util.Log;
 
 /**
  * Manages the time travel sound effects.
@@ -31,6 +32,8 @@ public class SoundEffects {
 		if(enabled) {
 			if(sound != getCurrentPlayingSound()) {
 				stopSound();
+
+				Log.d("DMC12", "start playing sound " + context.getResources().getResourceEntryName(sound));
 
 				mediaPlayer = MediaPlayer.create(context, sound);
 				mediaPlayer.setLooping(loop);
