@@ -46,8 +46,8 @@ public class PluginActivity extends Activity {
 
 	private boolean useMph = false;
 	private boolean debug = false;
+	private boolean incSpeed = true;
 
-	private double acceleration;
 	private double lastSpeed;
 	private double currentSpeed;
 
@@ -165,6 +165,7 @@ public class PluginActivity extends Activity {
 		super.onResume();
 
 		useMph = prefs.getBoolean("pref_use_mph", false);
+		incSpeed = prefs.getBoolean("pref_speed_increment", true);
 		sfx.setEnabled(prefs.getBoolean("pref_enable_sounds", true));
 
 		// Bind to the torque service
@@ -242,7 +243,12 @@ public class PluginActivity extends Activity {
 					speed *= 0.621371;
 				}
 
-				incrementSpeedUpTo(speed);
+				if(incSpeed) {
+					incrementSpeedUpTo(speed);
+				} else {
+					currentSpeed = speed;
+					updateSpeedometer();
+				}
 
 				if(!lastConnected) {
 					// play startup sound
@@ -291,7 +297,6 @@ public class PluginActivity extends Activity {
 							@Override
 							public void run() {
 								updateSpeedometer();
-								System.out.println(currentSpeed);
 							}
 
 						});
@@ -375,6 +380,6 @@ public class PluginActivity extends Activity {
 	}
 
 	private long getDebugCurrentSpeed() {
-		return 5 * (((new Date()).getTime() / 1000) % 60);
+		return 5 * (((new Date()).getTime() / 1000) % 30);
 	}
 }

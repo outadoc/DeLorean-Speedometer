@@ -14,6 +14,12 @@
 		android:summaryOn="@string/pref_sounds_summary_on"
 		android:title="@string/pref_sounds_title" />
 	<SwitchPreference
+		android:key="pref_speed_increment"
+		android:summaryOff="@string/pref_speed_increment_summary_off"
+		android:summaryOn="@string/pref_speed_increment_summary_on"
+		android:title="@string/pref_speed_increment_title" />
+	<SwitchPreference
+		android:defaultValue="true"
 		android:key="pref_debug"
 		android:summary="@string/pref_restart_summary"
 		android:title="@string/pref_debug_title" />
