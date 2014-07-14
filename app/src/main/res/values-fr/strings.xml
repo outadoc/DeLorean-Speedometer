@@ -13,8 +13,11 @@
 	<string name="pref_debug_title">Mode débug</string>
 	<string name="pref_debug_summary">Affiche une vitesse prédéfinie. Utile pour tester.</string>
 	<string name="pref_speed_increment_title">Incrémentation vitesse</string>
-	<string name="pref_speed_increment_summary_on">Incrémente la vitesse unité par unité, comme dans le film. Entraine un léger décalage dans l'affichage.</string>
+	<string name="pref_speed_increment_summary_on">Incrémente la vitesse unité par unité, comme dans le film. Entraine un léger décalage dans l\'affichage.</string>
 	<string name="pref_speed_increment_summary_off">Incrémente la vitesse à chaque rafraîchissement. Plus précis, mais moins classe.</string>
 
+	<string name="pref_cat_units">Unités</string>
+	<string name="pref_cat_bonus">Bonus</string>
+	<string name="pref_cat_other">Autres</string>
 
 </resources>

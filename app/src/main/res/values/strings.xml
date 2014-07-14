@@ -16,4 +16,7 @@
 	<string name="pref_speed_increment_summary_on">Increments the speedometer just like in the movie, unit by unit. Causes a slight lag in the display.</string>
 	<string name="pref_speed_increment_summary_off">Increments the speedometer at every update. More accurate, but a bit less fancy.</string>
 
+	<string name="pref_cat_units">Units</string>
+	<string name="pref_cat_bonus">Bonus</string>
+	<string name="pref_cat_other">Other</string>
 </resources>
