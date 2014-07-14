@@ -31,15 +31,17 @@ import java.util.TimerTask;
 
 public class PluginActivity extends Activity {
 
-	private final long PID_SPEED = 0x0D;
+	private static final long PID_SPEED = 0x0D;
 
-	private final int OBD_REFRESH_INTERVAL = 500;
+	private static final int OBD_REFRESH_INTERVAL = 500;
 
-	private final int BG_INDEX_NONE = -1;
-	private final int BG_INDEX_CAMERA = -2;
+	private static final int BG_INDEX_NONE = -1;
+	private static final int BG_INDEX_CAMERA = -2;
 
-	private final int[] backgrounds = new int[]{BG_INDEX_NONE, 0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4,
+	private static final int[] backgrounds = new int[]{BG_INDEX_NONE, 0, R.drawable.bg, R.drawable.bg2, R.drawable.bg3,
+			R.drawable.bg4,
 			BG_INDEX_CAMERA};
+
 	private boolean lastConnected = false;
 
 	private int currentBg;
@@ -167,6 +169,9 @@ public class PluginActivity extends Activity {
 		useMph = prefs.getBoolean("pref_use_mph", false);
 		incSpeed = prefs.getBoolean("pref_speed_increment", true);
 		sfx.setEnabled(prefs.getBoolean("pref_enable_sounds", true));
+
+		txt_speed_diz.setText("-");
+		txt_speed_unit.setText("-");
 
 		// Bind to the torque service
 		Intent intent = new Intent();
