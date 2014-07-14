@@ -12,7 +12,7 @@
 	<string name="pref_sounds_summary_off">Ne pas jouer d\'effets sonores.</string>
 	<string name="pref_debug_title">Mode débug</string>
 	<string name="pref_debug_summary">Affiche une vitesse prédéfinie. Utile pour tester.</string>
-	<string name="pref_speed_increment_title">Incrémentation vitesse</string>
+	<string name="pref_speed_increment_title">Accélération progressive</string>
 	<string name="pref_speed_increment_summary_on">Incrémente la vitesse unité par unité, comme dans le film. Entraine un léger décalage dans l\'affichage.</string>
 	<string name="pref_speed_increment_summary_off">Incrémente la vitesse à chaque rafraîchissement. Plus précis, mais moins classe.</string>
 
