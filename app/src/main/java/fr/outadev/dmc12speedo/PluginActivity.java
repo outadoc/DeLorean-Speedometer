@@ -32,8 +32,10 @@ public class PluginActivity extends Activity {
 
 	private static final long PID_SPEED = 0x0D;
 
-	private static final int OBD_REFRESH_INTERVAL = 500;
-
+	private static final int OBD_REFRESH_INTERVAL_SLOW = 1000;
+	private static final int OBD_REFRESH_INTERVAL_NORMAL = 500;
+	private int odbRefreshInterval = OBD_REFRESH_INTERVAL_NORMAL;
+	private static final int OBD_REFRESH_INTERVAL_FAST = 200;
 	private static final int BG_INDEX_NONE = -1;
 	private static final int BG_INDEX_CAMERA = -2;
 
@@ -86,7 +88,6 @@ public class PluginActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -95,6 +96,36 @@ public class PluginActivity extends Activity {
 
 			public void onServiceConnected(ComponentName arg0, IBinder service) {
 				torqueService = ITorqueService.Stub.asInterface(service);
+
+				try {
+					switch(torqueService.getConfiguredSpeed()) {
+						case 1:
+							//slowest
+							odbRefreshInterval = OBD_REFRESH_INTERVAL_SLOW;
+							break;
+						case 3:
+							//fastest
+							odbRefreshInterval = OBD_REFRESH_INTERVAL_FAST;
+							break;
+						case 2:
+						default:
+							//normal
+							odbRefreshInterval = OBD_REFRESH_INTERVAL_NORMAL;
+							break;
+					}
+				} catch(RemoteException e) {
+					e.printStackTrace();
+					odbRefreshInterval = OBD_REFRESH_INTERVAL_NORMAL;
+				}
+
+				updateSpeedTimer = new Timer();
+				updateSpeedTimer.schedule(new TimerTask() {
+
+					public void run() {
+						updateSpeed();
+					}
+
+				}, 500, odbRefreshInterval);
 			}
 
 			public void onServiceDisconnected(ComponentName name) {
@@ -175,18 +206,7 @@ public class PluginActivity extends Activity {
 		// Bind to the torque service
 		Intent intent = new Intent();
 		intent.setClassName("org.prowl.torque", "org.prowl.torque.remote.TorqueService");
-		boolean successfulBind = bindService(intent, connection, 0);
-
-		if(successfulBind) {
-			updateSpeedTimer = new Timer();
-			updateSpeedTimer.schedule(new TimerTask() {
-
-				public void run() {
-					updateSpeed();
-				}
-
-			}, 500, OBD_REFRESH_INTERVAL);
-		}
+		bindService(intent, connection, 0);
 
 		if(getCurrentBackgroundResource() == BG_INDEX_CAMERA) {
 			initCamera();
@@ -315,7 +335,7 @@ public class PluginActivity extends Activity {
 							throw new InterruptedException();
 						}
 
-						Thread.sleep(OBD_REFRESH_INTERVAL / remainingUnits);
+						Thread.sleep(odbRefreshInterval / remainingUnits);
 					} catch(InterruptedException e) {
 						currentSpeed = targetSpeed;
 					}
@@ -387,7 +407,7 @@ public class PluginActivity extends Activity {
 		return backgrounds[currentBg % backgrounds.length];
 	}
 
-	private long getDebugCurrentSpeed() {
-		return 5 * (((new Date()).getTime() / 1000) % 30);
+	private double getDebugCurrentSpeed() {
+		return 5 * (((new Date()).getTime()) % (45 * 1000)) / 1000;
 	}
 }
