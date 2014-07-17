@@ -233,8 +233,12 @@ public class PluginActivity extends Activity {
 		try {
 			if(torqueService.isConnectedToECU() || debug) {
 				double speed;
-
 				lastSpeed = currentSpeed;
+
+				if(!lastConnected) {
+					currentSpeed = 0.0D;
+					updateSpeedometer();
+				}
 
 				if(debug) {
 					speed = getDebugCurrentSpeed();
@@ -244,7 +248,7 @@ public class PluginActivity extends Activity {
 				}
 
 				if(useMph) {
-					speed *= 0.621371;
+					speed *= 0.621371D;
 				}
 
 				if(incSpeed) {
@@ -264,16 +268,16 @@ public class PluginActivity extends Activity {
 				if(lastConnected) {
 					//play shutdown sound
 					sfx.playSound(SoundEffects.SHUTDOWN, false);
+
+					handler.post(new Runnable() {
+
+						public void run() {
+							txt_speed_diz.setText("");
+							txt_speed_unit.setText("");
+						}
+
+					});
 				}
-
-				handler.post(new Runnable() {
-
-					public void run() {
-						txt_speed_diz.setText("");
-						txt_speed_unit.setText("");
-					}
-
-				});
 
 				lastConnected = false;
 			}
@@ -291,9 +295,9 @@ public class PluginActivity extends Activity {
 
 					try {
 						if(currentSpeed < targetSpeed) {
-							currentSpeed += 1.0;
+							currentSpeed += 1.0D;
 						} else {
-							currentSpeed -= 1.0;
+							currentSpeed -= 1.0D;
 						}
 
 						PluginActivity.this.runOnUiThread(new Runnable() {
@@ -328,10 +332,10 @@ public class PluginActivity extends Activity {
 		handler.post(new Runnable() {
 
 			public void run() {
-				if(currentSpeed >= 100.0) {
+				if(currentSpeed >= 100.0D) {
 					txt_speed_diz.setText("-");
 					txt_speed_unit.setText("-");
-				} else if(currentSpeed >= 10.0) {
+				} else if(currentSpeed >= 10.0D) {
 					txt_speed_diz.setText(Long.valueOf((long) currentSpeed / 10)
 							.toString());
 					txt_speed_unit.setText(Long.valueOf((long) currentSpeed % 10)
@@ -342,10 +346,10 @@ public class PluginActivity extends Activity {
 				}
 
 				if((new Date()).getTime() - lastTimeTravelTime >= 10 * 1000) {
-					if(currentSpeed >= 88.0 && currentSpeed < 92.0) {
+					if(currentSpeed >= 88.0D && currentSpeed < 92.0D) {
 						sfx.playSound(SoundEffects.TIME_TRAVEL, false);
 						lastTimeTravelTime = (new Date()).getTime();
-					} else if(currentSpeed >= 80.0 && currentSpeed < 88.0) {
+					} else if(currentSpeed >= 80.0D && currentSpeed < 88.0D) {
 						sfx.playSound(SoundEffects.PREPARE_TIME_TRAVEL, true);
 					} else if(sfx.getCurrentPlayingSound() == SoundEffects.PREPARE_TIME_TRAVEL) {
 						sfx.stopSound();
