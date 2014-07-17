@@ -4,6 +4,8 @@ This project is a Back to the Future DeLorean speedometer plugin for Torque, an 
 
 It displays the speed of your car via its OBD II port. If you already have Torque configured, you should just have to install the app and open it via Torque.
 
+![Screenshot](http://img.outadoc.fr/img/speedo-screen-170714_framed.png)
+
 ## Usage
 
 * Open the app via Torque.
