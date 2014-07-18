@@ -195,7 +195,7 @@ public class PluginActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 
-		useMph = prefs.getBoolean("pref_use_mph", false);
+		useMph = prefs.getBoolean("pref_use_mph", true);
 		incSpeed = prefs.getBoolean("pref_speed_increment", true);
 		debug = prefs.getBoolean("pref_debug", false);
 		sfx.setEnabled(prefs.getBoolean("pref_enable_sounds", true));

@@ -3,7 +3,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 	<PreferenceCategory android:title="@string/pref_cat_units">
 		<SwitchPreference
-			android:defaultValue="false"
+			android:defaultValue="true"
 			android:key="pref_use_mph"
 			android:summaryOff="@string/pref_use_mph_summary_off"
 			android:summaryOn="@string/pref_use_mph_summary_on"
@@ -17,6 +17,7 @@
 			android:summaryOn="@string/pref_sounds_summary_on"
 			android:title="@string/pref_sounds_title" />
 		<SwitchPreference
+			android:defaultValue="true"
 			android:key="pref_speed_increment"
 			android:summaryOff="@string/pref_speed_increment_summary_off"
 			android:summaryOn="@string/pref_speed_increment_summary_on"
